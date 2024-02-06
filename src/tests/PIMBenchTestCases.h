@@ -31,7 +31,8 @@ class PIMBenchTestCase
                                                      256 * 64 * 2);
         pim_mem_ = make_shared<MultiChannelMemorySystem>("ini/HBM2_samsung_2M_16B_x64.ini",
                                                          "system_hbm_64ch.ini", ".", "example_app",
-        /*                                                 256 * 64 * 2);
+                                                        256 * 64 * 2);
+        /*
         lpddr_mem_ = make_shared<MultiChannelMemorySystem>("ini/LPDDR4_8Gb_x16_2400.ini",
                                                      "system_lpddr_1ch.ini", ".", "example_app",
                                                      256 * 64 * 2);
@@ -122,7 +123,7 @@ class PIMBenchTestCase
     bool is_pim_;
 
     shared_ptr<PIMKernel> kernel_;
-    shared_ptr<MultiChannelMemorySystem> mem_, pim_mem_
+    shared_ptr<MultiChannelMemorySystem> mem_, pim_mem_;
     // shared_ptr<MultiChannelMemorySystem> lpddr_mem_, lpddr_pim_mem_;
     DataDim *dim_data_;
 };
