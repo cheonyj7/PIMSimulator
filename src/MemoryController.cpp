@@ -88,8 +88,8 @@ MemoryController::MemoryController(MemorySystem* parent, CSVWriter& csvOut_, ost
     // staggers when each rank is due for a refresh
     for (size_t i = 0; i < config.NUM_RANKS; i++)
         refreshCountdown.push_back((int)((config.tREFI / config.tCK) / config.NUM_RANKS) * (i + 1));
-    for (size_t i = 0; i < config.NUM_BANKS; i++)
-        refreshCountdownBank.push_back((int)((config.tREFISB / config.tCK)) * (i + 1));
+    // for (size_t i = 0; i < config.NUM_BANKS; i++)
+        // refreshCountdownBank.push_back((int)((config.tREFISB / config.tCK)) * (i + 1));
 
     memoryContStats = new MemoryControllerStats(
         parentMemorySystem, csvOut, dramsimLog, config, totalTransactions, grandTotalBankAccesses,
@@ -251,7 +251,8 @@ void MemoryController::updateCommandQueue(BusPacket* poppedBusPacket)
 
             // if we are using posted-CAS, the next column access can be sooner than normal
             // operation
-            setBankStatesRW(rank, bank, (config.tRCDRD - config.AL), (config.tRCDWR - config.AL));
+            // setBankStatesRW(rank, bank, (config.tRCDRD - config.AL), (config.tRCDWR - config.AL));
+            setBankStatesRW(rank, bank, (config.tRCD - config.AL), (config.tRCD - config.AL));
 
             for (size_t i = 0; i < config.NUM_BANKS; i++)
             {

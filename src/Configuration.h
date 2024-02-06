@@ -49,6 +49,7 @@ class Configuration
         tRC = getConfigParam(UINT, "tRC");
         tRCDRD = getConfigParam(UINT, "tRCDRD");
         tRCDWR = getConfigParam(UINT, "tRCDWR");
+        tRCD = getConfigParam(UINT, "tRCD");
         tREFI = getConfigParam(UINT, "tREFI");
         tREFISB = getConfigParam(UINT, "tREFISB");
         tRFC = getConfigParam(UINT, "tRFC");
@@ -142,6 +143,7 @@ class Configuration
     unsigned tRC;
     unsigned tRCDRD;
     unsigned tRCDWR;
+    unsigned tRCD;
     unsigned tREFI;
     unsigned tREFISB;
     unsigned tRFC;

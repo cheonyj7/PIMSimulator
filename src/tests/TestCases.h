@@ -296,7 +296,7 @@ class DataDim
     bool used_data_;
 
     DataDim(KernelType kn_type, uint32_t batch_size, uint32_t output_dim, uint32_t input_dim,
-            bool used_data)
+            bool used_data) // dim_data_ = new DataDim(KernelType::GEMV, 1, 4096, 4096, false);
     {
         batch_size_ = batch_size;
         output_dim_ = output_dim;

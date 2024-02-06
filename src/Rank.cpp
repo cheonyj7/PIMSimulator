@@ -280,8 +280,10 @@ void Rank::updateBank(BusPacketType type, int bank, int row, bool targetBank, bo
                 bankStates[bank].currentBankState = RowActive;
                 bankStates[bank].nextActivate = currentClockCycle + config.tRC;
                 bankStates[bank].openRowAddress = row;
-                bankStates[bank].nextWrite = currentClockCycle + (config.tRCDWR - config.AL);
-                bankStates[bank].nextRead = currentClockCycle + (config.tRCDRD - config.AL);
+                // bankStates[bank].nextWrite = currentClockCycle + (config.tRCDWR - config.AL);
+                // bankStates[bank].nextRead = currentClockCycle + (config.tRCDRD - config.AL);
+                bankStates[bank].nextWrite = currentClockCycle + (config.tRCD - config.AL);
+                bankStates[bank].nextRead = currentClockCycle + (config.tRCD - config.AL);
                 bankStates[bank].nextPrecharge = currentClockCycle + config.tRAS;
             }
             else

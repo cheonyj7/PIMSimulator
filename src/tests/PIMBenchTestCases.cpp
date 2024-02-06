@@ -51,3 +51,31 @@ TEST_F(PIMBenchFixture, relu)
     executePIMKernel();
     expectPIMBench(2.0);
 }
+
+/*
+TEST_F(PIMBenchFixture, attention)
+{
+    setPIMBenchTestCase(KernelType::ATTENTION, );
+    executeKernel();
+    executePIMKernel();
+    expectPIMBench(2.0);
+}
+
+
+TEST_F(PIMBenchFixture, lpddr_no_pim_bench)
+{
+    setPIMBenchTestCase(KernelType::ADD, 1024 * 1024, 1024 * 1024);
+    executeKernel();
+    executePIMKernel();
+    expectPIMBench(2.0);
+}
+
+TEST_F(PIMBenchFixture, lpddr_pim_bench)
+{
+    setPIMBenchTestCase(KernelType::ADD, 1024 * 1024, 1024 * 1024);
+    executeKernel();
+    executePIMKernel();
+    expectPIMBench(2.0);
+}
+*/
+

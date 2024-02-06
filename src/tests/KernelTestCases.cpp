@@ -71,6 +71,7 @@ TEST_F(PIMKernelFixture, gemv)
 
     reduced_result_ = new BurstType[dim_data->dimTobShape(output_dim)];
     result_ = getResultPIM(KernelType::GEMV, dim_data, kernel, result_);
+    // kernel->runPIM();
 
     testStatsClear();
     expectAccuracy(KernelType::GEMV, output_dim, dim_data->output_npbst_,

@@ -26,13 +26,13 @@
 using namespace std;
 using namespace DRAMSim;
 
-class PIMKernel
+class PIMKernel // kernel_ = make_shared<PIMKernel>(pim_mem_, 64, 1);
 {
   public:
     PIMKernel(shared_ptr<MultiChannelMemorySystem> mem, int num_pim_chan, int num_pim_rank)
-        : mem_(mem),
-          num_pim_chans_(num_pim_chan),
-          num_pim_ranks_(num_pim_rank),
+        : mem_(mem), // mem_(pim_mem_)
+          num_pim_chans_(num_pim_chan), // num_pim_chans_(64)
+          num_pim_ranks_(num_pim_rank), // num_pim_ranks_(1)
           mode_(PIMConfiguration::getPIMMode()),
           num_banks_(getConfigParam(UINT, "NUM_BANKS")),
           num_pim_blocks_(getConfigParam(UINT, "NUM_PIM_BLOCKS")),
