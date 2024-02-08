@@ -93,4 +93,10 @@ enum class KernelType
     GEMVTREE,
     SOFTMAX
 };
+
+enum class MemoryType
+{
+    HBM2,
+    LPDDR4
+};
 #endif

@@ -26,6 +26,7 @@ class Configuration
   public:
     Configuration(AddrMapping& am) : addrMapping(am)
     {
+        PROTOCOL = getConfigParam(STRING, "PROTOCOL");
         AL = getConfigParam(UINT, "AL");
         BL = getConfigParam(UINT, "BL");
         CMD_QUEUE_DEPTH = getConfigParam(UINT, "CMD_QUEUE_DEPTH");
@@ -120,6 +121,7 @@ class Configuration
         SIM_TRACE_FILE = getConfigParam(STRING, "SIM_TRACE_FILE");
     }
 
+    std::string PROTOCOL;
     unsigned AL;
     unsigned BL;
     unsigned CMD_QUEUE_DEPTH;

@@ -75,6 +75,7 @@ typedef struct _ConfigurationData
     }
 
 const static ConfigurationData defaultConfiguration[] = {
+    DEFINE_STRING_CONFIG(PROTOCOL, DEV_PARAM),
     DEFINE_UINT_CONFIG(NUM_BANKS, DEV_PARAM),
     DEFINE_UINT_CONFIG(NUM_BANK_GROUPS, DEV_PARAM),
     DEFINE_UINT_CONFIG(NUM_ROWS, DEV_PARAM),

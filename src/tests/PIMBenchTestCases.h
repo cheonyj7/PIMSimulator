@@ -23,31 +23,37 @@ using namespace DRAMSim;
 class PIMBenchTestCase
 {
   public:
-    PIMBenchTestCase(KernelType k, unsigned b, unsigned out, unsigned in) // PIMBenchTestCase(KernelType::GEMV, 1, 4096, 4096)
-        : kernel_type_(k), batch_(b), out_(out), in_(in) // kernel_type_(KernelType::GEMV), batch_(1), out_(4096), in_(4096)
+    PIMBenchTestCase(KernelType k, MemoryType m, unsigned b, unsigned out, unsigned in) // PIMBenchTestCase(KernelType::GEMV, 1, 4096, 4096)
+        : kernel_type_(k), memory_type_(m), batch_(b), out_(out), in_(in) // kernel_type_(KernelType::GEMV), batch_(1), out_(4096), in_(4096)
     {
-        mem_ = make_shared<MultiChannelMemorySystem>("ini/HBM2_samsung_2M_16B_x64.ini",
+        if (memory_type_ == MemoryType::HBM2)
+        {
+            mem_ = make_shared<MultiChannelMemorySystem>("ini/HBM2_samsung_2M_16B_x64.ini",
                                                      "system_hbm_64ch.ini", ".", "example_app",
                                                      256 * 64 * 2);
-        pim_mem_ = make_shared<MultiChannelMemorySystem>("ini/HBM2_samsung_2M_16B_x64.ini",
+            pim_mem_ = make_shared<MultiChannelMemorySystem>("ini/HBM2_samsung_2M_16B_x64.ini",
                                                          "system_hbm_64ch.ini", ".", "example_app",
                                                         256 * 64 * 2);
-        /*
-        lpddr_mem_ = make_shared<MultiChannelMemorySystem>("ini/LPDDR4_8Gb_x16_2400.ini",
-                                                     "system_lpddr_1ch.ini", ".", "example_app",
+        }
+        else
+        {
+            mem_ = make_shared<MultiChannelMemorySystem>("ini/LPDDR4_8Gb_x16_2400_test.ini",
+                                                     "system_LPDDR4_8Gb_x16_2400_test.ini", ".", "example_app",
                                                      256 * 64 * 2);
-        lpddr_pim_mem_ = make_shared<MultiChannelMemorySystem>("ini/LPDDR4_8Gb_x16_2400.ini",
-                                                                "system_lpddr_1ch.ini", ".", "example_app",
+            pim_mem_ = make_shared<MultiChannelMemorySystem>("ini/LPDDR4_8Gb_x16_2400_test.ini",
+                                                                "system_LPDDR4_8Gb_x16_2400_test.ini", ".", "example_app",
                                                                 256 * 64 * 2);
+        }
         
+        
+        /*
         MultiChannelMemorySystem::MultiChannelMemorySystem(const string& deviceIniFilename_,
                                                         const string& systemIniFilename_,
                                                         const string& pwd_, const string& traceFilename_,
                                                         unsigned megsOfMemory_, string* visFilename_)
-        */
-                                            
+                                                        */                       
         // # of pim channel = 64, # of pim rank = 1
-        kernel_ = make_shared<PIMKernel>(pim_mem_, 64, 1);
+        kernel_ = make_shared<PIMKernel>(pim_mem_, pim_mem_->configuration->NUM_CHANS, 1);
         dim_data_ = new DataDim(kernel_type_, batch_, out_, in_, false); // dim_data_ = new DataDim(KernelType::GEMV, 1, 4096, 4096, false);
     } // PIMBenchTestCase class constructor에서는 mem_, pim_mem_, PIMKernel shared pointer인 kernel_, 그리고 DataDim class 객체인 dim_data_를 initialize
 
@@ -117,6 +123,7 @@ class PIMBenchTestCase
 
   protected:
     KernelType kernel_type_;
+    MemoryType memory_type_;
     unsigned batch_;
     unsigned in_;
     unsigned out_;
@@ -124,15 +131,14 @@ class PIMBenchTestCase
 
     shared_ptr<PIMKernel> kernel_;
     shared_ptr<MultiChannelMemorySystem> mem_, pim_mem_;
-    // shared_ptr<MultiChannelMemorySystem> lpddr_mem_, lpddr_pim_mem_;
     DataDim *dim_data_;
 };
 
 class GemvPIMBenchTest : public PIMBenchTestCase
 {
   public:
-    GemvPIMBenchTest(KernelType k, unsigned b, unsigned out, unsigned in) // GemvPIMBenchTest(KernelType::GEMV, 1, 4096, 4096)
-        : PIMBenchTestCase(k, b, out, in) // PIMBenchTestCase(KernelType::GEMV, 1, 4096, 4096)
+    GemvPIMBenchTest(KernelType k, MemoryType m, unsigned b, unsigned out, unsigned in) // GemvPIMBenchTest(KernelType::GEMV, 1, 4096, 4096)
+        : PIMBenchTestCase(k, m, b, out, in) // PIMBenchTestCase(KernelType::GEMV, 1, 4096, 4096)
     {
     }
 
@@ -171,8 +177,8 @@ class GemvPIMBenchTest : public PIMBenchTestCase
 class EltPIMBenchTest : public PIMBenchTestCase
 {
   public:
-    EltPIMBenchTest(KernelType k, unsigned b, unsigned out, unsigned in)
-        : PIMBenchTestCase(k, b, out, in)
+    EltPIMBenchTest(KernelType k, MemoryType m, unsigned b, unsigned out, unsigned in)
+        : PIMBenchTestCase(k, m, b, out, in)
     {
         input_row0_ = 0;
         input_row1_ = 128;
@@ -218,8 +224,8 @@ class EltPIMBenchTest : public PIMBenchTestCase
 class ActPIMBenchTest : public PIMBenchTestCase
 {
   public:
-    ActPIMBenchTest(KernelType k, unsigned b, unsigned out, unsigned in)
-        : PIMBenchTestCase(k, b, out, in)
+    ActPIMBenchTest(KernelType k, MemoryType m, unsigned b, unsigned out, unsigned in)
+        : PIMBenchTestCase(k, m, b, out, in)
     {
         input_row0_ = 0;
         result_row_ = 256;
@@ -274,19 +280,19 @@ class PIMBenchFixture : public testing::Test
         delete perfTest;
     }
 
-    void setPIMBenchTestCase(KernelType k, unsigned out, unsigned in, unsigned batch = 1)
+    void setPIMBenchTestCase(KernelType k, MemoryType m, unsigned out, unsigned in, unsigned batch = 1)
     {
         if (k == KernelType::GEMV)
         {
-            perfTest = new GemvPIMBenchTest(k, batch, out, in); // GemvPIMBenchTest(KernelType::GEMV, 1, 4096, 4096)
+            perfTest = new GemvPIMBenchTest(k, m, batch, out, in); // GemvPIMBenchTest(KernelType::GEMV, 1, 4096, 4096)
         }
         else if (k == KernelType::MUL || k == KernelType::ADD)
         {
-            perfTest = new EltPIMBenchTest(k, batch, out, in);
+            perfTest = new EltPIMBenchTest(k, m, batch, out, in);
         }
         else if (k == KernelType::RELU)
         {
-            perfTest = new ActPIMBenchTest(k, batch, out, in);
+            perfTest = new ActPIMBenchTest(k, m, batch, out, in);
         }
         /*
         else if (k == KernelType::ATTENTION)

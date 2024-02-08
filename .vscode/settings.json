@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "*.tcc": "cpp",
+        "functional": "cpp",
+        "random": "cpp",
+        "mutex": "cpp",
+        "thread": "cpp",
+        "type_traits": "cpp",
+        "new": "cpp",
+        "typeinfo": "cpp"
+    }
+}

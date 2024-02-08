@@ -86,10 +86,19 @@ MemoryController::MemoryController(MemorySystem* parent, CSVWriter& csvOut_, ost
     totalEpochLatency = vector<uint64_t>(config.NUM_RANKS * config.NUM_BANKS, 0);
 
     // staggers when each rank is due for a refresh
-    for (size_t i = 0; i < config.NUM_RANKS; i++)
-        refreshCountdown.push_back((int)((config.tREFI / config.tCK) / config.NUM_RANKS) * (i + 1));
-    // for (size_t i = 0; i < config.NUM_BANKS; i++)
-        // refreshCountdownBank.push_back((int)((config.tREFISB / config.tCK)) * (i + 1));
+    if (config.PROTOCOL == "HBM2")
+    {
+        for (size_t i = 0; i < config.NUM_RANKS; i++)
+            refreshCountdown.push_back((int)((config.tREFI / config.tCK) / config.NUM_RANKS) * (i + 1));
+        for (size_t i = 0; i < config.NUM_BANKS; i++) // Not needed on LPDDR
+            refreshCountdownBank.push_back((int)((config.tREFISB / config.tCK)) * (i + 1));
+    }
+    else
+    {
+        for (size_t i = 0; i < config.NUM_RANKS; i++)
+            refreshCountdown.push_back((int)((config.tREFI / config.tCK) / config.NUM_RANKS) * (i + 1));
+    }
+    
 
     memoryContStats = new MemoryControllerStats(
         parentMemorySystem, csvOut, dramsimLog, config, totalTransactions, grandTotalBankAccesses,
@@ -251,8 +260,10 @@ void MemoryController::updateCommandQueue(BusPacket* poppedBusPacket)
 
             // if we are using posted-CAS, the next column access can be sooner than normal
             // operation
-            // setBankStatesRW(rank, bank, (config.tRCDRD - config.AL), (config.tRCDWR - config.AL));
-            setBankStatesRW(rank, bank, (config.tRCD - config.AL), (config.tRCD - config.AL));
+            if (config.PROTOCOL == "HBM2")
+            setBankStatesRW(rank, bank, (config.tRCDRD - config.AL), (config.tRCDWR - config.AL)); // Needed on HBM
+            else
+            setBankStatesRW(rank, bank, (config.tRCD - config.AL), (config.tRCD - config.AL)); // Needed on LPDDR
 
             for (size_t i = 0; i < config.NUM_BANKS; i++)
             {
@@ -578,7 +589,11 @@ void MemoryController::update()
 
     // decrement refresh counters
     for (size_t i = 0; i < config.NUM_RANKS; i++) refreshCountdown[i]--;
-    for (size_t i = 0; i < config.NUM_BANKS; i++) refreshCountdownBank[i]--;
+    
+    if (config.PROTOCOL == "HBM2")
+    {
+        for (size_t i = 0; i < config.NUM_BANKS; i++) refreshCountdownBank[i]--;
+    }
 
     // print debug
     printDebugOnUpate();
@@ -588,6 +603,7 @@ void MemoryController::update()
 
 bool MemoryController::WillAcceptTransaction()
 {
+    
     return transactionQueue.size() < getConfigParam(UINT, "TRANS_QUEUE_DEPTH");
 }
 
