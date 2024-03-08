@@ -86,25 +86,22 @@ MemoryController::MemoryController(MemorySystem* parent, CSVWriter& csvOut_, ost
     totalEpochLatency = vector<uint64_t>(config.NUM_RANKS * config.NUM_BANKS, 0);
 
     // staggers when each rank is due for a refresh
-    if (config.PROTOCOL == "HBM2")
-    {
-        for (size_t i = 0; i < config.NUM_RANKS; i++)
-            refreshCountdown.push_back((int)((config.tREFI / config.tCK) / config.NUM_RANKS) * (i + 1));
-        for (size_t i = 0; i < config.NUM_BANKS; i++) // Not needed on LPDDR
-            refreshCountdownBank.push_back((int)((config.tREFISB / config.tCK)) * (i + 1));
-    }
-    else
-    {
-        for (size_t i = 0; i < config.NUM_RANKS; i++)
-            refreshCountdown.push_back((int)((config.tREFI / config.tCK) / config.NUM_RANKS) * (i + 1));
-    }
-    
+    for (size_t i = 0; i < config.NUM_RANKS; i++)
+        refreshCountdown.push_back((int)((config.tREFI / config.tCK) / config.NUM_RANKS) * (i + 1));
+    for (size_t i = 0; i < config.NUM_BANKS; i++)
+        refreshCountdownBank.push_back((int)((config.tREFISB / config.tCK)) * (i + 1));
 
     memoryContStats = new MemoryControllerStats(
         parentMemorySystem, csvOut, dramsimLog, config, totalTransactions, grandTotalBankAccesses,
         totalReadsPerRank, totalWritesPerRank, totalReadsPerBank, totalWritesPerBank,
         totalActivatesPerRank, totalActivatesPerBank, totalRefreshes, backgroundEnergy, burstEnergy,
         actpreEnergy, refreshEnergy, aluPIMEnergy, refreshEnergy, pendingReadTransactions);
+}
+
+unsigned MemoryController::getsystemID()
+{
+    MemorySystem* temp = memoryContStats->getMemorySystem();
+    return temp->systemID;
 }
 
 // get a bus packet from either data or cmd bus
@@ -117,7 +114,7 @@ void MemoryController::receiveFromBus(BusPacket* bpacket)
         exit(0);
     }
 
-    if (DEBUG_BUS)
+    if (DEBUG_BUS && getsystemID() == 0)
     {
         PRINTN(" -- MC Receiving From Data Bus : ");
         bpacket->print();
@@ -260,10 +257,7 @@ void MemoryController::updateCommandQueue(BusPacket* poppedBusPacket)
 
             // if we are using posted-CAS, the next column access can be sooner than normal
             // operation
-            if (config.PROTOCOL == "HBM2")
-            setBankStatesRW(rank, bank, (config.tRCDRD - config.AL), (config.tRCDWR - config.AL)); // Needed on HBM
-            else
-            setBankStatesRW(rank, bank, (config.tRCD - config.AL), (config.tRCD - config.AL)); // Needed on LPDDR
+            setBankStatesRW(rank, bank, (config.tRCDRD - config.AL), (config.tRCDWR - config.AL));
 
             for (size_t i = 0; i < config.NUM_BANKS; i++)
             {
@@ -297,7 +291,7 @@ void MemoryController::updateCommandQueue(BusPacket* poppedBusPacket)
     }
 
     // issue on bus and print debug
-    if (DEBUG_BUS)
+    if (DEBUG_BUS && getsystemID() == 0)
     {
         PRINTN(" -- MC Issuing On Command Bus : ");
         poppedBusPacket->print();
@@ -334,7 +328,7 @@ void MemoryController::updateTransactionQueue()
         // and add them to the command queue
         if (commandQueue.hasRoomFor(1, newTransactionRank, newTransactionBank))
         {
-            if (DEBUG_ADDR_MAP)
+            if (DEBUG_ADDR_MAP && getsystemID() == 0)
             {
                 PRINTN("== New Transaction - Mapping Address [0x" << hex << transaction->address
                                                                   << dec << "]");
@@ -512,7 +506,7 @@ void MemoryController::update()
         if (writeDataCountdown[0] == 0)
         {
             // send to bus and print debug stuff
-            if (DEBUG_BUS)
+            if (DEBUG_BUS && getsystemID() == 0)
             {
                 PRINTN(" -- MC Issuing On Data Bus    : ");
                 writeDataToSend[0]->print();
@@ -551,7 +545,7 @@ void MemoryController::update()
     // check for outstanding data to return to the CPU
     if (returnTransaction.size() > 0)
     {
-        if (DEBUG_BUS)
+        if (DEBUG_BUS && getsystemID() == 0)
             PRINTN(" -- MC Issuing to CPU bus : " << *returnTransaction[0]);
         totalTransactions++;
 
@@ -589,21 +583,19 @@ void MemoryController::update()
 
     // decrement refresh counters
     for (size_t i = 0; i < config.NUM_RANKS; i++) refreshCountdown[i]--;
-    
-    if (config.PROTOCOL == "HBM2")
-    {
-        for (size_t i = 0; i < config.NUM_BANKS; i++) refreshCountdownBank[i]--;
-    }
+    for (size_t i = 0; i < config.NUM_BANKS; i++) refreshCountdownBank[i]--;
 
     // print debug
-    printDebugOnUpate();
+    if (getsystemID() == 0)
+    {
+        printDebugOnUpate();
+    }
 
     commandQueue.step();
 }
 
 bool MemoryController::WillAcceptTransaction()
 {
-    
     return transactionQueue.size() < getConfigParam(UINT, "TRANS_QUEUE_DEPTH");
 }
 

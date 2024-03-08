@@ -70,7 +70,7 @@ void PIMRank::controlPIM(BusPacket* packet)
     uint8_t grf_a_zeroize = packet->data->u8Data_[20];
     if (grf_a_zeroize)
     {
-        if (DEBUG_CMD_TRACE)
+        if (DEBUG_CMD_TRACE && getChanId() == 0)
         {
             PRINTC(RED, OUTLOG_CH_RA("GRF_A_ZEROIZE"));
         }
@@ -83,7 +83,7 @@ void PIMRank::controlPIM(BusPacket* packet)
     uint8_t grf_b_zeroize = packet->data->u8Data_[21];
     if (grf_b_zeroize)
     {
-        if (DEBUG_CMD_TRACE)
+        if (DEBUG_CMD_TRACE && getChanId() == 0)
         {
             PRINTC(RED, OUTLOG_CH_RA("GRF_B_ZEROIZE"));
         }
@@ -187,7 +187,7 @@ void PIMRank::writeHab(BusPacket* packet)
         if ((0x08 <= packet->column && packet->column <= 0x0f) ||
             (0x18 <= packet->column && packet->column <= 0x1f))
         {
-            if (DEBUG_CMD_TRACE)
+            if (DEBUG_CMD_TRACE && getChanId() == 0)
             {
                 if (packet->column - 8 < 8)
                     PRINTC(GREEN, OUTLOG_B_GRF_A("BWRITE_GRF_A"));
@@ -206,13 +206,13 @@ void PIMRank::writeHab(BusPacket* packet)
         }
         else if (0x04 <= packet->column && packet->column <= 0x07)
         {
-            if (DEBUG_CMD_TRACE)
+            if (DEBUG_CMD_TRACE && getChanId() == 0)
                 PRINTC(GREEN, OUTLOG_B_CRF("BWRITE_CRF"));
             crf.bst[packet->column - 0x04] = *(packet->data);
         }
         else if (packet->column == 0x1)
         {
-            if (DEBUG_CMD_TRACE)
+            if (DEBUG_CMD_TRACE && getChanId() == 0)
                 PRINTC(GREEN, OUTLOG_CH_RA("BWRITE_SRF"));
             for (int pb = 0; pb < config.NUM_PIM_BLOCKS; pb++) pimBlocks[pb].srf = *(packet->data);
         }
@@ -362,7 +362,7 @@ void PIMRank::doPIM(BusPacket* packet)
     do
     {
         cCmd.fromInt(crf.data[pimPC_]);
-        if (DEBUG_CMD_TRACE)
+        if (DEBUG_CMD_TRACE && getChanId() == 0)
         {
             PRINTC(CYAN, string((packet->busPacketType == READ) ? "READ ch" : "WRITE ch")
                              << getChanId() << " ra" << getRankId() << " bg"
@@ -429,7 +429,7 @@ void PIMRank::doPIM(BusPacket* packet)
 
             for (int pimblock_id = 0; pimblock_id < config.NUM_PIM_BLOCKS; pimblock_id++)
             {
-                if (DEBUG_PIM_BLOCK && pimblock_id == 0)
+                if (DEBUG_PIM_BLOCK && pimblock_id == 0 && getChanId() == 0)
                 {
                     PRINT(pimBlocks[pimblock_id].print());
                     PRINT("[BANK_R]" << packet->data->binToStr());
@@ -438,7 +438,7 @@ void PIMRank::doPIM(BusPacket* packet)
 
                 doPIMBlock(packet, cCmd, pimblock_id);
 
-                if (DEBUG_PIM_BLOCK && pimblock_id == 0)
+                if (DEBUG_PIM_BLOCK && pimblock_id == 0 && getChanId() == 0)
                 {
                     PRINT(pimBlocks[pimblock_id].print());
                     PRINT("----------");

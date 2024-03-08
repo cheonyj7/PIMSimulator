@@ -22,7 +22,7 @@ using namespace DRAMSim;
 
 TEST_F(PIMBenchFixture, gemv)
 {
-    setPIMBenchTestCase(KernelType::GEMV, MemoryType::HBM2, 4096, 4096);  // (KernelType, out_vec, in_vec)
+    setPIMBenchTestCase(KernelType::GEMV, 2048, 2048);  // (KernelType, out_vec, in_vec)
     executeKernel();                                    // execute w/o PIM
     executePIMKernel();                                 // execute w/ PIM
     expectPIMBench(2.0);
@@ -30,7 +30,7 @@ TEST_F(PIMBenchFixture, gemv)
 
 TEST_F(PIMBenchFixture, mul)
 {
-    setPIMBenchTestCase(KernelType::MUL, MemoryType::HBM2, 2 * 1024 * 1024, 2 * 1024 * 1024);
+    setPIMBenchTestCase(KernelType::MUL, 2 * 1024 * 1024, 2 * 1024 * 1024);
     executeKernel();
     executePIMKernel();
     expectPIMBench(2.0);
@@ -38,7 +38,7 @@ TEST_F(PIMBenchFixture, mul)
 
 TEST_F(PIMBenchFixture, add)
 {
-    setPIMBenchTestCase(KernelType::ADD, MemoryType::HBM2, 1024 * 1024, 1024 * 1024);
+    setPIMBenchTestCase(KernelType::ADD, 1024 * 1024, 1024 * 1024);
     executeKernel();
     executePIMKernel();
     expectPIMBench(2.0);
@@ -46,42 +46,8 @@ TEST_F(PIMBenchFixture, add)
 
 TEST_F(PIMBenchFixture, relu)
 {
-    setPIMBenchTestCase(KernelType::RELU, MemoryType::HBM2, 4 * 1024 * 1024, 4 * 1024 * 1024);
+    setPIMBenchTestCase(KernelType::RELU, 4 * 1024 * 1024, 4 * 1024 * 1024);
     executeKernel();
     executePIMKernel();
     expectPIMBench(2.0);
 }
-
-TEST_F(PIMBenchFixture, lpddr_gemv)
-{
-    setPIMBenchTestCase(KernelType::GEMV, MemoryType::LPDDR4, 1024 * 1024, 1024 * 1024);
-    executeKernel();
-    executePIMKernel();
-    expectPIMBench(2.0);
-}
-
-TEST_F(PIMBenchFixture, lpddr_mul)
-{
-    setPIMBenchTestCase(KernelType::MUL, MemoryType::LPDDR4, 1024 * 1024, 1024 * 1024);
-    executeKernel();
-    executePIMKernel();
-    expectPIMBench(2.0);
-}
-
-TEST_F(PIMBenchFixture, lpddr_add)
-{
-    setPIMBenchTestCase(KernelType::ADD, MemoryType::LPDDR4, 1024 * 1024, 1024 * 1024);
-    executeKernel();
-    executePIMKernel();
-    expectPIMBench(2.0);
-}
-
-TEST_F(PIMBenchFixture, lpddr_relu)
-{
-    setPIMBenchTestCase(KernelType::RELU, MemoryType::LPDDR4, 1024 * 1024, 1024 * 1024);
-    executeKernel();
-    executePIMKernel();
-    expectPIMBench(2.0);
-}
-
-

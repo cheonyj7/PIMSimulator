@@ -103,7 +103,8 @@ class PIMRank : public SimulatorObject
     }
     unsigned inline getGrfIdxHigh(unsigned r, unsigned c)
     {
-        return ((r & 0x1) << 2 | ((c >> 3) & 0x3));
+        return c / 8;
+        // return ((r & 0x1) << 2 | ((c >> 3) & 0x3));
     }
 
     Rank* rank;

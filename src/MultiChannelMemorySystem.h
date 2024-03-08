@@ -105,8 +105,6 @@ class MultiChannelMemorySystem : public MemoryObject
         *val = getConfigParam(FLOAT, field);
     }
 
-    Configuration* configuration;
-    
   private:
     unsigned findChannelNumber(uint64_t addr);
     void actual_update();
@@ -125,6 +123,7 @@ class MultiChannelMemorySystem : public MemoryObject
     double backgroundPower;
     unsigned* numFence;
 
+    Configuration* configuration;
 };
 }  // namespace DRAMSim
 

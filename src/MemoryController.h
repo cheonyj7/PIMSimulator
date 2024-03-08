@@ -85,6 +85,7 @@ class MemoryController : public SimulatorObject
     void setBankStatesRW(size_t rank, size_t bank, uint64_t nextRead, uint64_t nextWrite);
     void setBankStates(size_t rank, size_t bank, CurrentBankState currentBankState,
                        BusPacketType lastCommand, uint64_t stateChangeCountdown, uint64_t nextAct);
+    unsigned getsystemID();
 
     // fields
     MemorySystem* parentMemorySystem;
@@ -165,6 +166,7 @@ class MemoryControllerStats
     void printStats(bool finalStats, unsigned myChannel, uint64_t currentClockCycle);
     void insertHistogram(unsigned latencyValue, unsigned rank, unsigned bank);
     void resetStats();
+    MemorySystem* getMemorySystem() {return parentMemorySystem;}
 
   private:
     MemorySystem* parentMemorySystem;

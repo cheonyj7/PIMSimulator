@@ -63,15 +63,14 @@ TEST_F(PIMKernelFixture, gemv)
     shared_ptr<PIMKernel> kernel = make_pim_kernel();
 
     uint32_t batch_size = 1;
-    uint32_t output_dim = 4096;
-    uint32_t input_dim = 1024;
+    uint32_t output_dim = 2048;
+    uint32_t input_dim = 2048;
 
     DataDim *dim_data = new DataDim(KernelType::GEMV, batch_size, output_dim, input_dim, true);
     dim_data->printDim(KernelType::GEMV);
 
     reduced_result_ = new BurstType[dim_data->dimTobShape(output_dim)];
     result_ = getResultPIM(KernelType::GEMV, dim_data, kernel, result_);
-    // kernel->runPIM();
 
     testStatsClear();
     expectAccuracy(KernelType::GEMV, output_dim, dim_data->output_npbst_,

@@ -203,7 +203,7 @@ class PIMKernelFixture : public testing::Test
     shared_ptr<PIMKernel> make_pim_kernel()
     {
         shared_ptr<MultiChannelMemorySystem> mem = make_shared<MultiChannelMemorySystem>(
-            "ini/HBM2_samsung_2M_16B_x64.ini", "system_hbm_64ch.ini", ".", "example_app",
+            "ini/LPDDR4_8Gb_x16_2400.ini", "system_hbm_64ch.ini", ".", "example_app",
             256 * 64 * 2);
         int numPIMChan = 64;
         int numPIMRank = 1;
@@ -279,7 +279,7 @@ class PIMKernelFixture : public testing::Test
 ::testing::AssertionResult fp16BstEqualHelper(const char* m_expr, const char* n_expr, BurstType mb,
                                               BurstType nb)
 {
-    for (int i = 0; i < 16; i++)
+    for (int i = 0; i < 64; i++)
     {
         fp16 m = mb.fp16Data_[i];
         fp16 n = nb.fp16Data_[i];

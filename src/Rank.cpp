@@ -96,7 +96,7 @@ Rank::~Rank()
 
 void Rank::receiveFromBus(BusPacket* packet)
 {
-    if (DEBUG_BUS)
+    if (DEBUG_BUS && getChanId() == 0)
     {
         PRINTN(" -- R" << getChanId() << " Receiving On Bus    : ");
         packet->print();
@@ -280,17 +280,8 @@ void Rank::updateBank(BusPacketType type, int bank, int row, bool targetBank, bo
                 bankStates[bank].currentBankState = RowActive;
                 bankStates[bank].nextActivate = currentClockCycle + config.tRC;
                 bankStates[bank].openRowAddress = row;
-                if (config.PROTOCOL == "HBM2")
-                {
-                    bankStates[bank].nextWrite = currentClockCycle + (config.tRCDWR - config.AL);
-                    bankStates[bank].nextRead = currentClockCycle + (config.tRCDRD - config.AL);
-                }
-                else
-                {
-                    bankStates[bank].nextWrite = currentClockCycle + (config.tRCD - 2 * config.AL);
-                    bankStates[bank].nextRead = currentClockCycle + (config.tRCD - 2 * config.AL);
-                }
-
+                bankStates[bank].nextWrite = currentClockCycle + (config.tRCDWR - config.AL);
+                bankStates[bank].nextRead = currentClockCycle + (config.tRCDRD - config.AL);
                 bankStates[bank].nextPrecharge = currentClockCycle + config.tRAS;
             }
             else
@@ -323,7 +314,7 @@ void Rank::updateBank(BusPacketType type, int bank, int row, bool targetBank, bo
 
 void Rank::readSb(BusPacket* packet)
 {
-    if (DEBUG_CMD_TRACE)
+    if (DEBUG_CMD_TRACE && getChanId() == 0)
     {
         if (packet->row == 0x3fff)
         {
@@ -363,7 +354,7 @@ void Rank::readSb(BusPacket* packet)
 
 void Rank::writeSb(BusPacket* packet)
 {
-    if (DEBUG_CMD_TRACE)
+    if (DEBUG_CMD_TRACE && getChanId() == 0)
     {
         if (packet->row == 0x3fff || packet->row & (1 << 12))
         {
@@ -406,7 +397,7 @@ void Rank::execute(BusPacket* packet)
             delete (packet);
             break;
         case ACTIVATE:
-            if (DEBUG_CMD_TRACE)
+            if (DEBUG_CMD_TRACE && getChanId() == 0)
             {
                 PRINTC(getModeColor(), OUTLOG_ALL("ACTIVATE") << " tag : " << packet->tag);
             }
@@ -414,15 +405,15 @@ void Rank::execute(BusPacket* packet)
             {
                 abmr1Even_ = (packet->bank == 0) ? true : abmr1Even_;
                 abmr1Odd_ = (packet->bank == 1) ? true : abmr1Odd_;
-                abmr2Even_ = (packet->bank == 8) ? true : abmr2Even_;
-                abmr2Odd_ = (packet->bank == 9) ? true : abmr2Odd_;
+                abmr2Even_ = (packet->bank == 4) ? true : abmr2Even_;
+                abmr2Odd_ = (packet->bank == 5) ? true : abmr2Odd_;
 
                 if ((config.NUM_BANKS <= 2 && abmr1Even_ && abmr1Odd_) ||
                     (config.NUM_BANKS > 2 && abmr1Even_ && abmr1Odd_ && abmr2Even_ && abmr2Odd_))
                 {
                     abmr1Even_ = abmr1Odd_ = abmr2Even_ = abmr2Odd_ = false;
                     mode_ = dramMode::HAB;
-                    if (DEBUG_CMD_TRACE)
+                    if (DEBUG_CMD_TRACE && getChanId() == 0)
                     {
                         PRINTC(RED, OUTLOG_CH_RA("HAB") << " tag : " << packet->tag);
                     }
@@ -431,7 +422,7 @@ void Rank::execute(BusPacket* packet)
             delete (packet);
             break;
         case PRECHARGE:
-            if (DEBUG_CMD_TRACE)
+            if (DEBUG_CMD_TRACE && getChanId() == 0)
             {
                 if (mode_ == dramMode::SB || packet->bank < 2)
                 {
@@ -452,7 +443,7 @@ void Rank::execute(BusPacket* packet)
                 {
                     sbmr1_ = sbmr2_ = false;
                     mode_ = dramMode::SB;
-                    if (DEBUG_CMD_TRACE)
+                    if (DEBUG_CMD_TRACE && getChanId() == 0)
                     {
                         PRINTC(RED, OUTLOG_CH_RA("SB mode"));
                     }
@@ -464,7 +455,7 @@ void Rank::execute(BusPacket* packet)
 
         case REF:
             refreshWaiting = false;
-            if (DEBUG_CMD_TRACE)
+            if (DEBUG_CMD_TRACE && getChanId() == 0)
             {
                 PRINT(OUTLOG_CH_RA("REF"));
             }
@@ -513,7 +504,7 @@ void Rank::update()
         readReturnPacket.erase(readReturnPacket.begin());
         readReturnCountdown.erase(readReturnCountdown.begin());
 
-        if (DEBUG_BUS)
+        if (DEBUG_BUS && getChanId() == 0)
         {
             PRINTN(" -- R" << getChanId() << " Issuing On Data Bus : ");
             outgoingDataPacket->print();

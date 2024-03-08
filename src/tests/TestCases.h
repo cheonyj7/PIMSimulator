@@ -235,11 +235,11 @@ class DataDim
             {
                 weight_npbst_.shape.push_back(output_dim_);
                 weight_npbst_.shape.push_back(input_dim_);
-                weight_npbst_.loadTobShape(16);
+                weight_npbst_.loadTobShape(64);
 
                 input_npbst_.shape.push_back(batch_size_);
                 input_npbst_.shape.push_back(input_dim_);
-                input_npbst_.loadTobShape(16);
+                input_npbst_.loadTobShape(64);
 
                 for (int i = 0; i < input_npbst_.bShape[1]; i++)
                 {
@@ -296,7 +296,7 @@ class DataDim
     bool used_data_;
 
     DataDim(KernelType kn_type, uint32_t batch_size, uint32_t output_dim, uint32_t input_dim,
-            bool used_data) // dim_data_ = new DataDim(KernelType::GEMV, 1, 4096, 4096, false);
+            bool used_data)
     {
         batch_size_ = batch_size;
         output_dim_ = output_dim;

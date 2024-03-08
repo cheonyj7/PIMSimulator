@@ -64,7 +64,7 @@ void PIMBlock::mac(BurstType& dstBst, BurstType& src0Bst, BurstType& src1Bst)
 {
     if (pimPrecision_ == FP16)
     {
-        for (int i = 0; i < 16; i++)
+        for (int i = 0; i < 64; i++)
         {
             dstBst.fp16Data_[i] = src0Bst.fp16Data_[i] * src1Bst.fp16Data_[i] + dstBst.fp16Data_[i];
         }

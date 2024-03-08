@@ -3,9 +3,9 @@ import numpy as np
 # min dim_in = 128 -> 256bit / 16bit
 # min dim_out = 8 PIM block
 BATCH = 1
-REAL_DIM_IN = 1024
-DIM_IN = 1024
-DIM_OUT = 4096
+REAL_DIM_IN = 2048
+DIM_IN = 2048
+DIM_OUT = 2048
 
 np.set_printoptions(precision=20)
 np.random.seed(1113)

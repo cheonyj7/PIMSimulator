@@ -90,13 +90,6 @@ enum class KernelType
     RELU,
     GEMV,
     MUL,
-    GEMVTREE,
-    SOFTMAX
-};
-
-enum class MemoryType
-{
-    HBM2,
-    LPDDR4
+    GEMVTREE
 };
 #endif
